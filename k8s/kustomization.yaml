@@ -4,13 +4,15 @@ kind: Kustomization
 namespace: mern
 
 resources:
-  - mongodb.yaml
-  - backend.yaml
-  - frontend.yaml
+- mongodb.yaml
+- backend.yaml
+- frontend.yaml
 
 # CI updates these tags with: kustomize edit set image ...
 images:
-  - name: sajwansarthak/mern-backend
-    newTag: latest
-  - name: sajwansarthak/mern-frontend
-    newTag: latest
+- name: sajwansarthak/mern-backend
+  newName: sajwansarthak/mern-backend
+  newTag: 4c53dec623cd76ab571a16c041e0057b80809c7e
+- name: sajwansarthak/mern-frontend
+  newName: sajwansarthak/mern-frontend
+  newTag: 4c53dec623cd76ab571a16c041e0057b80809c7e
