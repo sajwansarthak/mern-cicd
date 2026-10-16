@@ -2,7 +2,7 @@ name: ci
 
 on:
   push:
-    branches: [compose]
+    branches: [main]
     paths-ignore:
       - "k8s/**"        # stops the manifest commit below from re-triggering this workflow
       - "argocd/**"
