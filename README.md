@@ -1,4 +1,4 @@
-# A simple MERN stack application 
+# A simple MERN stack application automated with cide and kubernetes
 
 ### Create a network for the docker containers
 
