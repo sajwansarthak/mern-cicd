@@ -1,0 +1,80 @@
+name: ci
+
+on:
+  push:
+    branches: [compose]
+    paths-ignore:
+      - "k8s/**"        # stops the manifest commit below from re-triggering this workflow
+      - "argocd/**"
+
+env:
+  DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+  VITE_API_URL: http://localhost:5050
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Backend checks
+        working-directory: mern/backend
+        run: |
+          npm ci
+          npm test --if-present
+      - name: Frontend checks
+        working-directory: mern/frontend
+        run: |
+          npm ci
+          npm run lint --if-present
+
+  build-and-deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./mern/backend
+          push: true
+          tags: ${{ env.DOCKERHUB_USER }}/mern-backend:${{ github.sha }}
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./mern/frontend
+          push: true
+          build-args: |
+            VITE_API_URL=${{ env.VITE_API_URL }}
+          tags: ${{ env.DOCKERHUB_USER }}/mern-frontend:${{ github.sha }}
+
+      - name: Install kustomize
+        run: |
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+
+      - name: Update image tags in manifests
+        working-directory: k8s
+        run: |
+          kustomize edit set image ${{ env.DOCKERHUB_USER }}/mern-backend=${{ env.DOCKERHUB_USER }}/mern-backend:${{ github.sha }}
+          kustomize edit set image ${{ env.DOCKERHUB_USER }}/mern-frontend=${{ env.DOCKERHUB_USER }}/mern-frontend:${{ github.sha }}
+
+      - name: Commit manifest change
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add k8s/kustomization.yaml
+          git commit -m "deploy: ${{ github.sha }}" || echo "nothing to commit"
+          git pull --rebase origin main
+          git push

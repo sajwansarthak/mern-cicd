@@ -1,0 +1,12 @@
+node_modules
+dist
+npm-debug.log
+.git
+.gitignore
+.env
+.env.*
+cypress
+cypress.json
+Dockerfile
+.dockerignore
+README.md
