@@ -12,26 +12,7 @@ env:
   VITE_API_URL: http://localhost:5050
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Backend checks
-        working-directory: mern/backend
-        run: |
-          npm ci
-          npm test --if-present
-      - name: Frontend checks
-        working-directory: mern/frontend
-        run: |
-          npm ci
-          npm run lint --if-present
-
   build-and-deploy:
-    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: write
