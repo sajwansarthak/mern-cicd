@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/sajwansarthak/MERN-docker-compose.git
+    repoURL: https://github.com/sajwansarthak/mern-cicd.git
     targetRevision: main
     path: k8s
   destination:

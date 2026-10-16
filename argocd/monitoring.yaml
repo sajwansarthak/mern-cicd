@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: "*"          # latest; pin to a specific version once it works
+    helm:
+      releaseName: monitoring
+      valuesObject:
+        alertmanager:
+          enabled: false         # saves memory on Minikube
+        # these control-plane targets aren't reachable on Minikube and would show as down
+        kubeEtcd:
+          enabled: false
+        kubeScheduler:
+          enabled: false
+        kubeControllerManager:
+          enabled: false
+        kubeProxy:
+          enabled: false
+        prometheus:
+          prometheusSpec:
+            retention: 2d
+            resources:
+              requests:
+                memory: 400Mi
+        grafana:
+          defaultDashboardsTimezone: Asia/Kolkata
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true     # required: the chart's CRDs are too large for a normal apply
