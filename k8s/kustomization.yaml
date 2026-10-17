@@ -12,7 +12,7 @@ resources:
 images:
 - name: sajwansarthak/mern-backend
   newName: sajwansarthak/mern-backend
-  newTag: 4c53dec623cd76ab571a16c041e0057b80809c7e
+  newTag: 2a7b3039507cf871e273b5985d2e791a79bff3c8
 - name: sajwansarthak/mern-frontend
   newName: sajwansarthak/mern-frontend
-  newTag: 4c53dec623cd76ab571a16c041e0057b80809c7e
+  newTag: 2a7b3039507cf871e273b5985d2e791a79bff3c8
